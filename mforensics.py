@@ -1,6 +1,5 @@
 import os
 import sys
-from loader import Loader
 
 class Mforensics:
 
