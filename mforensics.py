@@ -44,6 +44,7 @@ class Mforensics:
                 print(f"\nVolatility3 cloned in {os.path.join(self.dir, 'volatility3')}")
                 return os.path.join(self.dir, "volatility3")
             else:
+                os.chdir("volatility3")
                 return os.path.join(self.dir, "volatility3")
 
         else:
