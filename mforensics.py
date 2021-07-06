@@ -157,7 +157,7 @@ class Mforensics:
             alpha = self.get_alpha()
             return option, alpha
         if option == 3:
-            print("\n*****************************\n"
+            cprint("\n*****************************\n"
                     "1. PsTree\n"
                     "2. PsList\n" 
                     "3. PsScan\n" 
@@ -168,7 +168,7 @@ class Mforensics:
         if option == 4:
             return option, 0
         if option == 5:
-            print("\n*****************************\n" 
+            cprint("\n*****************************\n" 
                     "1. Netscan\n" 
                     "2. Netstat\n" 
                     "3. Menu\n"
@@ -176,7 +176,7 @@ class Mforensics:
             alpha = self.get_alpha()
             return option, alpha
         if option == 6:
-            print("\n*****************************\n" 
+            cprint("\n*****************************\n" 
                     "1. HiveScan\n" 
                     "2. HiveList\n" 
                     "3. PrintKey\n"
@@ -185,7 +185,7 @@ class Mforensics:
             alpha = self.get_alpha()
             return option, alpha
         if option == 7:
-            print("\n*****************************\n"
+            cprint("\n*****************************\n"
                     "1. File Scan\n"
                     "2. File Dump\n"
                     "3. Menu\n"
