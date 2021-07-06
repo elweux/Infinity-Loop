@@ -324,6 +324,7 @@ class Mforensics:
             try:
                 alpha = input("Enter the full file(memory dump) path: ")
                 self.file = os.path.realpath(alpha)
+                print("\033[01m", "\033[92m\n*** Memory dump change successful ***\033[0m")
             except Exception:
                 print("\nException occurred. Check entered path.")
 
