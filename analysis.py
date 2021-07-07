@@ -24,7 +24,7 @@ if __name__ == '__main__':
             sys.exit()
 
     try:
-        os.system("pip3 --no-python-version-warning -q install halo")
+        os.system("pip3 --disable-pip-version-check -q install halo")
     except Exception:
         print(u"\u2717 \033[1mCouldn't install halo\033[01m")
         print("\033[41m\nRun pip3 install halo manually\033[00m")
