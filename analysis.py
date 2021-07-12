@@ -7,7 +7,7 @@ if __name__ == '__main__':
         sys.exit("Usage: python3 analysis.py")
 
     if os.path.exists("/opt") and os.getuid() != 0:
-        sys.exit("Not running as sudo. Either run as sudo or change the default installation path.")
+        sys.exit("Not running as sudo")
 
     if os.popen(f"which pip3").read().rstrip() == "":
         print("\033[41mpip3 not installed...\033[00m")
