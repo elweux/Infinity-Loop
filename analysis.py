@@ -12,15 +12,11 @@ if __name__ == '__main__':
     if os.popen(f"which pip3").read().rstrip() == "":
         print("\033[41mpip3 not installed...\033[00m")
         try:
-            a = input("\nInstall pip3?(y/n): ").lower()
-            if a == "y" or a == "yes":
-                os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
-            elif a == "n" or a == "no":
-                sys.exit("Exiting...")
-            else:
-                print("Choose y/n only")
+            print("\nInstalling pip3... Please wait")
+            os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
+            print(u"\033[92m\u2714\033[0m \033[1mpip3 installed\033[01m")
         except Exception:
-            print("An exception occurred")
+            print("An exception occurred. Try installing manually.")
             sys.exit()
 
     try:
@@ -45,17 +41,20 @@ if __name__ == '__main__':
     file = input("Enter the full file(memory dump) path: ")
     file_path = os.path.realpath(file)
 
-    m = Mforensics(file_path)
+    mem = Mforensics(file_path)
 
-    check = m.req()
-
+    # check volatility requirements
+    mem.req()
+    # setting up memory image profile
+    mem.get_profile()
+    
     if os.path.exists("vol.py"):
         while True:
-            option = m.menu()
+            option = mem.menu()
             print()
-            process = m.func(option)
+            process = mem.func(option)
             choice, alpha = process[0], process[1]
-            m.proc(choice, alpha)
+            mem.proc(choice, alpha)
             
     else:
         sys.exit("\nError, vol.py is not found in the entered path.")
