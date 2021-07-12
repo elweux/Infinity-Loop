@@ -45,6 +45,15 @@ class Mforensics:
                 print(u"\033[92m\u2714\033[0m \033[1mDone!\033[01m")
                 print(f"\nvolatility cloned in {os.path.join(self.d, 'volatility')}")
                 print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
+                if os.popen(f"which pip2").read().rstrip() == "":
+                    os.system("curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py")
+                    self.halo.start()
+                    os.system("python2 -W ignore get-pip.py > /dev/null")
+                    os.system("rm -f get-pip.py")
+                    # installing pip2 breaks pip3; restoring pip3
+                    os.system("DEBIAN_FRONTEND=noninteractive apt-get remove -qqy python3-pip > /dev/null")
+                    os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
+                    self.halo.stop()
                 try:
                     self.halo.start()
                     os.system("pip2 --no-python-version-warning -q install distorm3 pycrypto")
