@@ -169,7 +169,7 @@ class Mforensics:
             self.halo.stop()
             cprint(f"A little longer...", attrs=["bold"])
             self.halo.start()
-            os.system("pip2 --no-python-version-warning -q install requests")
+            os.system("pip2 --disable-pip-version-check -q install requests")
             os.system("git clone -q https://github.com/elweux/malhunt.git")
             self.halo.stop()
             print(u"\033[92m\u2714\033[0m \033[1mSetup success\033[01m")
