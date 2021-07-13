@@ -49,7 +49,7 @@ class Mforensics:
                 os.chdir("volatility")
                 print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
                 if os.popen(f"which curl").read().rstrip() == "":
-                    os.system("DEBIAN_FRONTEND=noninteractive apt-get remove -qqy curl > /dev/null")
+                    os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy curl > /dev/null")
                 if os.popen(f"which pip2").read().rstrip() == "":
                     try:
                         os.system("curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py")
