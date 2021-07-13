@@ -48,6 +48,7 @@ class Mforensics:
                     print(f"\nvolatility cloned in {os.path.join(self.d, 'volatility')}")
                 os.chdir("volatility")
                 print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
+                os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python-dev > /dev/null")
                 if os.popen(f"which curl").read().rstrip() == "":
                     os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy curl > /dev/null")
                 if os.popen(f"which pip2").read().rstrip() == "":
@@ -435,9 +436,12 @@ class Mforensics:
                     os.system("python3 yara-rules/malware_yara_rules.py")
                     os.system("rm -fr yara-rules")
                     print(u"\n\033[92m\u2714\033[0m \033[1myara rules setup done\033[01m")
-                self.halo.start("Running yara scan...")
-                os.system(f"yara -weg malware_rules.yar {self.file}")
-                self.halo.stop()
+                    self.halo.start("Running yara scan...")
+                    os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
+                    self.halo.stop()
+                    time.sleep(1)
+                    os.system("cat yara-output.txt")
+                    os.system("rm -f yara-output.txt")
             else:
                 print("\nNot in 'volatility' directory. Changing directories now...")
                 self.halo.start("Changing directory...")
@@ -457,7 +461,7 @@ class Mforensics:
                     self.halo.start("Running yara scan...")
                     os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
                     self.halo.stop()
-                    print()
+                    time.sleep(1)
                     os.system("cat yara-output.txt")
                     os.system("rm -f yara-output.txt")
                 else:
