@@ -439,7 +439,8 @@ class Mforensics:
                     self.halo.start("Running yara scan...")
                     os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
                     self.halo.stop()
-                    time.sleep(1)
+                    time.sleep(0.5)
+                    print()
                     os.system("cat yara-output.txt")
                     os.system("rm -f yara-output.txt")
             else:
@@ -461,7 +462,8 @@ class Mforensics:
                     self.halo.start("Running yara scan...")
                     os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
                     self.halo.stop()
-                    time.sleep(1)
+                    time.sleep(0.5)
+                    print()
                     os.system("cat yara-output.txt")
                     os.system("rm -f yara-output.txt")
                 else:
