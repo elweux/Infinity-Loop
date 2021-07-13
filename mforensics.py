@@ -15,6 +15,7 @@ class Mforensics:
         self.menu_options =  list(x for x in range(12))
         # Spinner
         self.halo = Halo("Loading...", spinner="dots", color="green")
+        self.depcheck = False
 
 
     # check the volatility requirements
@@ -26,24 +27,26 @@ class Mforensics:
         if self.check == 'y':
             self.dir = input("\nEnter the full path (where vol.py is located): ")
             os.chdir(self.dir)
-            if os.path.exists("volatility"):
+            if os.path.exists("volatility") and self.depcheck:
                 return self.dir
             else:
-                print("No volatility directory exists")
+                print("No volatility directory exists or dependency check failed")
+                self.check == 'n'
 
         # install volatility if user doesn't have it
-        elif self.check == 'n':
+        if self.check == 'n':
             # you can change install path as per your wish
             self.d = "/opt/"
             os.chdir(self.d)
-            if os.path.exists("volatility") == False:
-                print("\033[01m", "\033[31m\n!Cloning volatility\033[0m")
-                self.halo.start()
-                os.system("git clone -q https://github.com/volatilityfoundation/volatility.git")
-                self.halo.stop()
+            if not os.path.exists("volatility") or not self.depcheck:
+                if not os.path.exists("volatility"):
+                    print("\033[01m", "\033[31m\n!Cloning volatility\033[0m")
+                    self.halo.start()
+                    os.system("git clone -q https://github.com/volatilityfoundation/volatility.git")
+                    self.halo.stop()
+                    print(u"\033[92m\u2714\033[0m \033[1mDone!\033[01m")
+                    print(f"\nvolatility cloned in {os.path.join(self.d, 'volatility')}")
                 os.chdir("volatility")
-                print(u"\033[92m\u2714\033[0m \033[1mDone!\033[01m")
-                print(f"\nvolatility cloned in {os.path.join(self.d, 'volatility')}")
                 print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
                 if os.popen(f"which curl").read().rstrip() == "":
                     os.system("DEBIAN_FRONTEND=noninteractive apt-get remove -qqy curl > /dev/null")
@@ -69,7 +72,7 @@ class Mforensics:
                     self.halo.stop() 
                     print(u"\033[92m\u2714\033[0m \033[1mpycrypto\033[01m")
                 except Exception:
-                    print("\nSome exception occured. Still continuing...")
+                    print("\n\033[01mSome exception occured. Still continuing...\033[0m")
                 if os.popen(f"which yara").read().rstrip() == "": 
                     try:
                         self.halo.start()
@@ -82,6 +85,7 @@ class Mforensics:
                 else:
                     print(u"\033[92m\u2714\033[0m \033[1myara found\033[01m")
                     os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
+                self.depcheck = True
                 self.dir = os.path.join(self.d, "volatility")
                 return self.dir
             else:
