@@ -20,11 +20,11 @@ class Mforensics:
     # check the volatility requirements
     def req(self):
         # ask if the user have volatility or not
-        self.check = input("Is volatility installed? (y/n): ")
+        self.check = input("\nIs volatility installed? (y/n): ")
 
         # get the path of volatility if user has it
         if self.check == 'y':
-            self.dir = input("Enter the full path (where vol.py is located): ")
+            self.dir = input("\nEnter the full path (where vol.py is located): ")
             os.chdir(self.dir)
             if os.path.exists("volatility"):
                 return self.dir
@@ -71,10 +71,12 @@ class Mforensics:
                         os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy yara > /dev/null")
                         self.halo.stop() 
                         print(u"\033[92m\u2714\033[0m \033[1myara installed\033[01m")
+                        os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
                     except Exception:
                         print("\nException occured. Install yara manually")
                 else:
                     print(u"\033[92m\u2714\033[0m \033[1myara found\033[01m")
+                    os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
                 self.dir = os.path.join(self.d, "volatility")
                 return self.dir
             else:
@@ -123,8 +125,8 @@ class Mforensics:
                 "3.  Process List               4.  CMDLine\n"
                 "5.  NetScan                    6.  Registry\n"
                 "7.  File Scan                  8.  MalFind\n"
-                "9.  Scan shady processes       10. Change memory dump\n"
-                "11. More\n"
+                "9.  Scan shady processes       10. Yara Scan\n"
+                "11. Change memory dump\n"
                 "0.  Quit\n"
               "---------------------------------------------------------\n\n", "cyan", attrs=["bold"])
         try:
@@ -146,8 +148,8 @@ class Mforensics:
 
 
     # Setup malware hunt
-    def malhunt(self):
-        if os.path.exists("malhunt") == False:
+    def malwarehunt(self):
+        if os.path.exists("malwarehunt") == False:
             try:
                 print("\033[01m", "\033[31m\n!Setting up volatility\033[0m")
                 os.system("python2 -W ignore setup.py install > /dev/null")
@@ -170,7 +172,7 @@ class Mforensics:
             cprint(f"A little longer...", attrs=["bold"])
             self.halo.start()
             os.system("pip2 --disable-pip-version-check -q install requests")
-            os.system("git clone -q https://github.com/elweux/malhunt.git")
+            os.system("git clone -q https://github.com/elweux/malwarehunt.git")
             self.halo.stop()
             print(u"\033[92m\u2714\033[0m \033[1mSetup success\033[01m")
 
@@ -190,7 +192,7 @@ class Mforensics:
                 os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy clamav clamav-daemon > /dev/null")
                 self.halo.stop()
             except Exception:
-                print(u"\033[91m\u2714\033[0m \033[1mInstallation failed\033[01m")
+                print(u"\033[91m\u2717\033[0m \033[1mInstallation failed\033[01m")
                 cprint("** Try installing manually **", attrs=["bold"])
                 return False
                 
@@ -359,32 +361,39 @@ class Mforensics:
         if option == 9:
             # check if we are in volatility directory
             if os.path.exists("volatility"):
-                try:
-                    if alpha == 'y' or alpha == 'yes':
-                        print()
-                        os.system(f"python2 malhunt/malhunt.py {self.file}")
-                    else:
-                        bool = self.malhunt()
+                if os.path.exists("malwarehunt"):
+                    try:
+                        os.system(f"python2 malwarehunt/malhunt.py {self.file}")
+                    except Exception:
+                        os.system("rm -fr malwarehunt")
+                        bool = self.malwarehunt()
                         if bool:
                             print()
-                            os.system(f"python2 malhunt/malhunt.py {self.file}")
+                            os.system(f"python2 malwarehunt/malhunt.py {self.file}")
                         else:
+                            print("\nCouldn't run malware hunt.")
+                            print("Try removing 'volatility' directory and running script")
                             return
-                except Exception:
-                        print("\nOops! something went wrong")
+                else:
+                    bool = self.malwarehunt()
+                    if bool:
+                        print()
+                        os.system(f"python2 malwarehunt/malhunt.py {self.file}")
+                    else:
+                        return
             else:
                 print("\nNot in 'volatility' directory. Changing directories now...")
-                self.halo.start()
+                self.halo.start("Changing directory...")
                 time.sleep(1)
                 os.chdir(self.dir)
                 self.halo.stop()
                 if os.path.exists("volatility"):
                     print("\033[01m", "\033[92m\n** Success **033[0m")
                     print("Continue with the setup...")
-                    bool = self.malhunt()
+                    bool = self.malwarehunt()
                     if bool:
                         print()
-                        os.system(f"python2 malhunt/malhunt.py {self.file}")
+                        os.system(f"python2 malwarehunt/malhunt.py {self.file}")
                     else:
                         return
                 else:
@@ -392,17 +401,73 @@ class Mforensics:
                     return
 
         if option == 10:
+            if os.popen(f"which yara").read().rstrip() == "":
+                try:
+                    print("\033[41myara not installed...\033[00m")
+                    self.halo.start("Installing yara...")
+                    os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy yara > /dev/null")
+                    self.halo.stop()
+                    print(u"\n\033[92m\u2714\033[0m \033[1mYara installed\033[01m")
+                except Exception:
+                    print(u"\033[91m\u2717\033[0m \033[1mInstallation failed\033[01m")
+                    print("Install manually to proceed: apt install yara ")
+                    return
+                if os.popen(f"which yara").read().rstrip() == "":
+                    print(u"\033[91m\u2717\033[0m \033[1myara not found\033[01m")
+                    print("Install manually to proceed: apt install yara")
+                    return
+            if os.path.exists("volatility"):
+                if not os.path.exists("malware_rules.yar"):
+                    if os.path.exists("rules"):
+                        os.system("rm -fr rules")
+                    print("\033[01m", "\033[31m\n!Setting up yara rules\033[0m")
+                    os.mkdir("rules")
+                    os.system("git clone -q https://gist.github.com/29c6ea48adf3d45a979a78763cdc7ce9.git yara-rules")
+                    os.system("python3 yara-rules/malware_yara_rules.py")
+                    os.system("rm -fr yara-rules")
+                    print(u"\n\033[92m\u2714\033[0m \033[1myara rules setup done\033[01m")
+                self.halo.start("Running yara scan...")
+                os.system(f"yara -weg malware_rules.yar {self.file}")
+                self.halo.stop()
+            else:
+                print("\nNot in 'volatility' directory. Changing directories now...")
+                self.halo.start("Changing directory...")
+                time.sleep(1)
+                os.chdir(self.dir)
+                self.halo.stop()
+                if os.path.exists("volatility"):
+                    print("\033[01m", "\033[92m\n** Success **033[0m")
+                    if not os.path.exists("malware_rules.yar"):
+                        if os.path.exists("rules"):
+                            os.system("rm -fr rules")
+                        print("\033[01m", "\033[31m\n!Setting up yara rules\033[0m")
+                        os.mkdir("rules")
+                        os.system("git clone -q https://gist.github.com/29c6ea48adf3d45a979a78763cdc7ce9.git yara-rules")
+                        os.system("python3 yara-rules/malware_yara_rules.py")
+                        print(u"\n\033[92m\u2714\033[0m \033[1myara rules setup done\n\033[01m")
+                    self.halo.start("Running yara scan...")
+                    os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
+                    self.halo.stop()
+                    print()
+                    os.system("cat yara-output.txt")
+                    os.system("rm -f yara-output.txt")
+                else:
+                    print("\033[91m\nError! Change into volatility directory and try again.\033[0m")
+                    return
+                
+        if option == 11:
             try:
                 alpha = input("Enter the full file(memory dump) path: ")
-                self.file = os.path.realpath(alpha)
-                print("\033[01m", "\033[92m\n*** Memory dump change successful ***\033[0m")
-                print("\nGetting profile of new memory image")
-                self.get_profile()
+                if os.path.exists(alpha):
+                    self.file = os.path.realpath(alpha)
+                    print("\033[01m", "\033[92m\n*** Memory dump change successful ***\033[0m")
+                    print("\nGetting profile of new memory image")
+                    self.get_profile()
+                else:
+                    raise Exception("File/directory not found")
             except Exception:
-                print("\nException occurred. Check entered path.")
-
-        if option == 11:
-            pass
-
+                print("\033[01m", "\033[91m\n*** Exception occurred. Check entered path ***\033[0m")
+            
+            
         if option not in self.menu_options:
             print("Please choose the option from menu")

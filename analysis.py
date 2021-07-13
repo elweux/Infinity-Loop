@@ -10,11 +10,21 @@ if __name__ == '__main__':
         sys.exit("Not running as sudo")
 
     if os.popen(f"which pip3").read().rstrip() == "":
-        print("\033[41mpip3 not installed...\033[00m")
+        print("\n\033[41mpip3 not installed...\033[00m")
         try:
             print("\nInstalling pip3... Please wait")
             os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
             print(u"\033[92m\u2714\033[0m \033[1mpip3 installed\033[01m")
+        except Exception:
+            print("An exception occurred. Try installing manually.")
+            sys.exit()
+    
+    if os.popen(f"which python2").read().rstrip() == "":
+        print("\n\033[41mpython2 not installed...\033[00m")
+        try:
+            print("\nInstalling python2... Please wait")
+            os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python2 > /dev/null")
+            print(u"\033[92m\u2714\033[0m \033[1mpython2 installed\033[01m")
         except Exception:
             print("An exception occurred. Try installing manually.")
             sys.exit()
@@ -40,21 +50,27 @@ if __name__ == '__main__':
 
     file = input("Enter the full file(memory dump) path: ")
     file_path = os.path.realpath(file)
-
-    mem = Mforensics(file_path)
-
-    # check volatility requirements
-    mem.req()
-    # setting up memory image profile
-    mem.get_profile()
     
-    if os.path.exists("vol.py"):
-        while True:
-            option = mem.menu()
-            print()
-            process = mem.func(option)
-            choice, alpha = process[0], process[1]
-            mem.proc(choice, alpha)
-            
+    if os.path.exists(file_path):
+        
+        mem = Mforensics(file_path)
+
+        # check volatility requirements
+        mem.req()
+        # setting up memory image profile
+        mem.get_profile()
+        
+        if os.path.exists("vol.py"):
+            while True:
+                option = mem.menu()
+                print()
+                process = mem.func(option)
+                choice, alpha = process[0], process[1]
+                mem.proc(choice, alpha)
+                
+        else:
+            sys.exit("\nError, vol.py is not found in the entered path.")
+    
     else:
-        sys.exit("\nError, vol.py is not found in the entered path.")
+        print("\n\033[91mpath not found or doesnot exist\n\033[00m")
+        sys.exit()
