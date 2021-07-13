@@ -14,7 +14,12 @@ if __name__ == '__main__':
         try:
             print("\nInstalling pip3... Please wait")
             os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
-            print(u"\033[92m\u2714\033[0m \033[1mpip3 installed\033[01m")
+            if os.popen(f"which pip3").read().rstrip() != "":
+                print(u"\033[92m\u2714\033[0m \033[1mpip3 installed\033[01m")
+            else:
+                print(u"\033[91m\u2717\033[0m \033[1mInstallation failed\033[01m")
+                print("\nInstall manually before proceeding")
+                sys.exit()
         except Exception:
             print("An exception occurred. Try installing manually.")
             sys.exit()
