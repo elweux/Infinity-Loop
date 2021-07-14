@@ -18,6 +18,51 @@ class Mforensics:
         self.depcheck = False
 
 
+    def dependeny_check(self):
+        print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
+        os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python-dev > /dev/null")
+        if os.popen(f"which curl").read().rstrip() == "":
+            os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy curl > /dev/null")
+        if os.popen(f"which pip2").read().rstrip() == "":
+            try:
+                os.system("curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py")
+                self.halo.start()
+                os.system("python2 -W ignore get-pip.py > /dev/null")
+                os.system("rm -f get-pip.py")
+                # installing pip2 breaks pip3; restoring pip3
+                os.system("DEBIAN_FRONTEND=noninteractive apt-get remove -qqy python3-pip > /dev/null")
+                os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
+                self.halo.stop()
+            except Exception:
+                sys.exit("Error, occured")
+        try:
+            self.halo.start()
+            os.system("pip2 --no-python-version-warning -q install distorm3 pycrypto")
+            self.halo.stop() 
+            print(u"\033[92m\u2714\033[0m \033[1mdistorm3\033[01m")
+            self.halo.start()
+            time.sleep(1.5)
+            self.halo.stop() 
+            print(u"\033[92m\u2714\033[0m \033[1mpycrypto\033[01m")
+        except Exception:
+            print("\n\033[01mSome exception occured. Still continuing...\033[0m")
+        if os.popen(f"which yara").read().rstrip() == "": 
+            try:
+                self.halo.start()
+                os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy yara > /dev/null")
+                self.halo.stop() 
+                print(u"\033[92m\u2714\033[0m \033[1myara installed\033[01m")
+                try:
+                    os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
+                except Exception:
+                    print("Symbolic link already created")
+            except Exception:
+                print("\nException occured. Install yara manually")
+        else:
+            print(u"\033[92m\u2714\033[0m \033[1myara found\033[01m")
+        self.depcheck = True
+
+
     # check the volatility requirements
     def req(self):
         # ask if the user have volatility or not
@@ -27,6 +72,7 @@ class Mforensics:
         if self.check == 'y':
             self.dir = input("\nEnter the full path (where vol.py is located): ")
             os.chdir(self.dir)
+            self.dependeny_check()
             if os.path.exists("volatility") and self.depcheck:
                 return self.dir
             else:
@@ -47,46 +93,7 @@ class Mforensics:
                     print(u"\033[92m\u2714\033[0m \033[1mDone!\033[01m")
                     print(f"\nvolatility cloned in {os.path.join(self.d, 'volatility')}")
                 os.chdir("volatility")
-                print("\033[01m", "\033[31m\n!Installing/Checking dependencies\033[0m")
-                os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python-dev > /dev/null")
-                if os.popen(f"which curl").read().rstrip() == "":
-                    os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy curl > /dev/null")
-                if os.popen(f"which pip2").read().rstrip() == "":
-                    try:
-                        os.system("curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py")
-                        self.halo.start()
-                        os.system("python2 -W ignore get-pip.py > /dev/null")
-                        os.system("rm -f get-pip.py")
-                        # installing pip2 breaks pip3; restoring pip3
-                        os.system("DEBIAN_FRONTEND=noninteractive apt-get remove -qqy python3-pip > /dev/null")
-                        os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy python3-pip > /dev/null")
-                        self.halo.stop()
-                    except Exception:
-                        sys.exit("Error, occured")
-                try:
-                    self.halo.start()
-                    os.system("pip2 --no-python-version-warning -q install distorm3 pycrypto")
-                    self.halo.stop() 
-                    print(u"\033[92m\u2714\033[0m \033[1mdistorm3\033[01m")
-                    self.halo.start()
-                    time.sleep(1.5)
-                    self.halo.stop() 
-                    print(u"\033[92m\u2714\033[0m \033[1mpycrypto\033[01m")
-                except Exception:
-                    print("\n\033[01mSome exception occured. Still continuing...\033[0m")
-                if os.popen(f"which yara").read().rstrip() == "": 
-                    try:
-                        self.halo.start()
-                        os.system("DEBIAN_FRONTEND=noninteractive apt-get install -qqy yara > /dev/null")
-                        self.halo.stop() 
-                        print(u"\033[92m\u2714\033[0m \033[1myara installed\033[01m")
-                        os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
-                    except Exception:
-                        print("\nException occured. Install yara manually")
-                else:
-                    print(u"\033[92m\u2714\033[0m \033[1myara found\033[01m")
-                    os.system("ln -s /usr/local/lib/python2.7/dist-packages/usr/lib/libyara.so /usr/lib/libyara.so")
-                self.depcheck = True
+                self.dependeny_check()
                 self.dir = os.path.join(self.d, "volatility")
                 return self.dir
             else:
