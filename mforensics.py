@@ -443,6 +443,7 @@ class Mforensics:
                     os.system("python3 yara-rules/malware_yara_rules.py")
                     os.system("rm -fr yara-rules")
                     print(u"\n\033[92m\u2714\033[0m \033[1myara rules setup done\033[01m")
+                if os.path.exists("malware_rules.yar"):
                     self.halo.start("Running yara scan...")
                     os.system(f"yara -weg malware_rules.yar {self.file} > yara-output.txt")
                     self.halo.stop()
